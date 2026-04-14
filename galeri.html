@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>Galeri — eL-BAS Official</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* PAGE HEADER */
+    .galeri-header {
+      background: linear-gradient(135deg, #0D2B0F 0%, #1B5E20 60%, #2E7D32 100%);
+      padding: calc(var(--nav-h, 68px) + 48px) 24px 52px;
+      text-align: center; position: relative; overflow: hidden;
+    }
+    .galeri-header::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E");
+    }
+    .galeri-header-inner { position: relative; z-index: 1; max-width: 600px; margin: 0 auto; }
+    .galeri-header-tag {
+      display: inline-block;
+      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+      color: #F5C842; padding: 6px 18px; border-radius: 30px;
+      font-size: 0.78rem; font-weight: 700; letter-spacing: 1px;
+      margin-bottom: 14px;
+    }
+    .galeri-header h1 {
+      font-size: clamp(1.8rem, 5vw, 2.8rem);
+      font-weight: 800; color: #fff; margin-bottom: 10px;
+    }
+    .galeri-header p { font-size: 0.95rem; color: rgba(255,255,255,0.75); line-height: 1.6; }
+
+    /* SECTION */
+    .galeri-page { padding: 40px 20px 72px; max-width: 1200px; margin: 0 auto; }
+
+    /* TOOLBAR */
+    .galeri-toolbar {
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 12px; margin-bottom: 24px;
+    }
+    .galeri-count {
+      font-size: 0.82rem; color: #5a7a5c; font-weight: 600;
+      background: rgba(27,94,32,0.08); padding: 6px 16px; border-radius: 20px;
+    }
+    .galeri-view-btns { display: flex; gap: 6px; }
+    .view-btn {
+      width: 36px; height: 36px; border-radius: 8px; border: 1.5px solid #ddd;
+      background: #fff; cursor: pointer; display: flex; align-items: center;
+      justify-content: center; color: #999; font-size: 0.85rem; transition: all 0.2s;
+    }
+    .view-btn.active, .view-btn:hover { background: #1B5E20; color: #fff; border-color: #1B5E20; }
+
+    /* MASONRY GRID */
+    .g-masonry {
+      columns: 4; column-gap: 12px;
+    }
+    .g-masonry .g-item { break-inside: avoid; margin-bottom: 12px; }
+
+    /* UNIFORM GRID */
+    .g-uniform {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 14px;
+    }
+    .g-uniform .g-item { aspect-ratio: 1; }
+
+    /* ITEM */
+    .g-item {
+      position: relative; border-radius: 12px; overflow: hidden;
+      cursor: pointer; background: #e8f5e9;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+      opacity: 0; transform: translateY(20px);
+      transition: opacity 0.5s ease, transform 0.5s ease, box-shadow 0.3s;
+    }
+    .g-item.visible { opacity: 1; transform: translateY(0); }
+    .g-item:hover { box-shadow: 0 10px 28px rgba(0,0,0,0.15); }
+    .g-item img {
+      width: 100%; display: block; object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+    .g-uniform .g-item img { height: 100%; }
+    .g-item:hover img { transform: scale(1.06); }
+
+    /* OVERLAY */
+    .g-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0) 50%);
+      opacity: 0; transition: opacity 0.3s;
+      display: flex; align-items: flex-end; padding: 14px;
+    }
+    .g-item:hover .g-overlay { opacity: 1; }
+    .g-overlay-content { display: flex; align-items: center; justify-content: space-between; width: 100%; }
+    .g-caption-text { color: #fff; font-size: 0.82rem; font-weight: 600; line-height: 1.3; flex: 1; }
+    .g-zoom { width: 32px; height: 32px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 0.8rem; flex-shrink: 0; }
+
+    /* EMPTY */
+    .g-empty { text-align: center; padding: 80px 24px; color: #aaa; }
+    .g-empty i { font-size: 3rem; opacity: 0.2; display: block; margin-bottom: 14px; }
+    .g-empty p { font-size: 0.92rem; }
+
+    /* LIGHTBOX */
+    .lightbox {
+      display: none; position: fixed; inset: 0; z-index: 9999;
+      background: rgba(0,0,0,0.96);
+      flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+    }
+    .lightbox.active { display: flex; }
+    .lb-img-wrap { position: relative; max-width: 92vw; max-height: 80vh; }
+    .lb-img-wrap img { max-width: 100%; max-height: 80vh; border-radius: 8px; object-fit: contain; display: block; }
+    .lb-close {
+      position: absolute; top: 14px; right: 16px;
+      color: #fff; font-size: 1.3rem; cursor: pointer;
+      width: 40px; height: 40px; background: rgba(255,255,255,0.12);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s; z-index: 10;
+    }
+    .lb-close:hover { background: rgba(255,255,255,0.25); }
+    .lb-nav {
+      position: fixed; top: 50%; transform: translateY(-50%);
+      color: #fff; cursor: pointer; width: 46px; height: 46px;
+      background: rgba(255,255,255,0.1); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; transition: background 0.2s; z-index: 10;
+    }
+    .lb-nav:hover { background: rgba(255,255,255,0.25); }
+    .lb-prev { left: 14px; }
+    .lb-next { right: 14px; }
+    .lb-footer { text-align: center; }
+    .lb-caption { color: rgba(255,255,255,0.85); font-size: 0.88rem; font-weight: 500; }
+    .lb-counter { color: rgba(255,255,255,0.45); font-size: 0.75rem; margin-top: 4px; }
+
+    @media (max-width: 900px) { .g-masonry { columns: 3; } }
+    @media (max-width: 600px) {
+      .g-masonry { columns: 2; column-gap: 8px; }
+      .g-masonry .g-item { margin-bottom: 8px; }
+      .g-uniform { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+      .galeri-page { padding: 28px 14px 56px; }
+      .lb-nav { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar" id="navbar">
+  <div class="nav-inner">
+    <a class="nav-logo" href="index.html">
+      <img src="img/logo-darulma'arif.png" alt="Logo">
+      <div class="nav-logo-text">
+        <strong>PONDOK PESANTREN</strong>
+        <span>DARUL MA'ARIF CIAMIS</span>
+      </div>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html#home">Beranda</a></li>
+      <li><a href="index.html#schools">Tingkatan</a></li>
+      <li><a href="index.html#program">Program</a></li>
+      <li><a href="index.html#lembaga">Lembaga</a></li>
+      <li><a href="index.html#ppdm">PPDM</a></li>
+      <li><a href="berita.html">Berita</a></li>
+      <li><a href="galeri.html" class="active">Galeri</a></li>
+      <li><a href="index.html#about">Tentang</a></li>
+      <li><a href="index.html#contact">Kontak</a></li>
+    </ul>
+    <button class="nav-hamburger" id="hamburger" onclick="toggleMenu()">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+<div class="nav-mobile" id="navMobile">
+  <a href="index.html#home" onclick="closeMenu()">🏠 Beranda</a>
+  <a href="index.html#schools" onclick="closeMenu()">🏫 Tingkatan</a>
+  <a href="index.html#program" onclick="closeMenu()">⭐ Program</a>
+  <a href="index.html#lembaga" onclick="closeMenu()">🏛️ Lembaga</a>
+  <a href="index.html#ppdm" onclick="closeMenu()">📋 PPDM</a>
+  <a href="berita.html" onclick="closeMenu()">📰 Berita</a>
+  <a href="galeri.html" onclick="closeMenu()">📸 Galeri</a>
+  <a href="index.html#about" onclick="closeMenu()">ℹ️ Tentang</a>
+  <a href="index.html#contact" onclick="closeMenu()">📞 Kontak</a>
+</div>
+
+<div class="galeri-header">
+  <div class="galeri-header-inner">
+    <span class="galeri-header-tag">📸 Dokumentasi</span>
+    <h1>Galeri Pondok</h1>
+    <p>Dokumentasi kegiatan santri dan lingkungan pesantren Darul Ma'arif Ciamis</p>
+  </div>
+</div>
+
+<div class="galeri-page">
+  <div class="galeri-toolbar">
+    <span class="galeri-count" id="galeriCount">0 foto</span>
+    <div class="galeri-view-btns">
+      <button class="view-btn active" id="btnMasonry" onclick="setView('masonry')" title="Masonry">
+        <i class="fas fa-th-large"></i>
+      </button>
+      <button class="view-btn" id="btnUniform" onclick="setView('uniform')" title="Grid">
+        <i class="fas fa-th"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="g-masonry" id="galeriGrid"></div>
+  <div class="g-empty" id="galeriEmpty" style="display:none">
+    <i class="fas fa-images"></i>
+    <p>Belum ada foto di galeri.</p>
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="handleLbClick(event)">
+  <div class="lb-close" onclick="closeLb()"><i class="fas fa-times"></i></div>
+  <div class="lb-nav lb-prev" onclick="prevPhoto(event)"><i class="fas fa-chevron-left"></i></div>
+  <div class="lb-nav lb-next" onclick="nextPhoto(event)"><i class="fas fa-chevron-right"></i></div>
+  <div class="lb-img-wrap">
+    <img id="lbImg" src="" alt="">
+  </div>
+  <div class="lb-footer">
+    <div class="lb-caption" id="lbCaption"></div>
+    <div class="lb-counter" id="lbCounter"></div>
+  </div>
+</div>
+
+<footer id="contact" class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <img src="img/logo-darulma'arif.png" alt="Logo">
+      <h3>PONDOK PESANTREN DARUL MA'ARIF</h3>
+      <p>Jl. Angganaya No.27 Desa Ciwahangan, Kec. Ciamis, Kab. Ciamis, Jawa Barat.</p>
+      <div class="footer-socials">
+        <a href="https://www.instagram.com/elbasofficial10?igsh=MXh4eXJpZHZhNXRoYQ=="><i class="fab fa-instagram"></i></a>
+        <a href="https://youtube.com/@elbasofficial?si=49c-yIEP9wz0vIMw"><i class="fab fa-youtube"></i></a>
+        <a href="https://whatsapp.com/channel/0029VbAgLBFG3R3r1sTAyE1i"><i class="fab fa-whatsapp"></i></a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Kontak Kami</h4>
+      <p><i class="fas fa-phone"></i> +62 878-7803-0670</p>
+      <p><i class="fas fa-envelope"></i> elbasofficial65@gmail.com</p>
+      <p><i class="fas fa-clock"></i> Senin–Jumat: 08.00–16.00</p>
+    </div>
+    <div class="footer-col">
+      <h4>Tautan Cepat</h4>
+      <p><i class="fas fa-chevron-right"></i><a href="index.html#home"> Beranda</a></p>
+      <p><i class="fas fa-chevron-right"></i><a href="index.html#schools"> Tingkatan</a></p>
+      <p><i class="fas fa-chevron-right"></i><a href="index.html#ppdm"> Pendaftaran</a></p>
+      <p><i class="fas fa-chevron-right"></i><a href="berita.html"> Berita</a></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 FANGKA MEDIA — Pondok Pesantren Darul Ma'arif Ciamis</p>
+    <p style="opacity:.5">Powered by eL-BAS Official</p>
+  </div>
+</footer>
+<script src="js/elBAS.js"></script>
+</body>
+</html>
+

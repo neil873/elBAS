@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel — eL-BAS</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #1B5E20; --green-mid: #2E7D32; --green-light: #43A047;
+    --gold: #C9960C; --dark: #0D1F0E; --text: #1a2e1b; --muted: #5a7a5c;
+    --bg: #f0f7f0; --card: #ffffff; --red: #c62828; --blue: #1565C0;
+    --radius: 16px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* LAYOUT */
+  .admin-layout { display: flex; min-height: 100vh; }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 240px; flex-shrink: 0;
+    background: linear-gradient(180deg, #0D2B0F 0%, #1B5E20 100%);
+    display: flex; flex-direction: column;
+    position: fixed; top: 0; left: 0; bottom: 0; z-index: 100;
+    transition: transform 0.3s;
+  }
+  .sidebar-brand {
+    padding: 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.1);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .sidebar-brand img { width: 40px; height: 40px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.3); object-fit: contain; }
+  .sidebar-brand div strong { display: block; color: #fff; font-size: 0.85rem; font-weight: 800; }
+  .sidebar-brand div span { font-size: 0.72rem; color: rgba(255,255,255,0.6); }
+  .sidebar-nav { flex: 1; padding: 16px 12px; display: flex; flex-direction: column; gap: 4px; }
+  .sidebar-nav a {
+    display: flex; align-items: center; gap: 12px;
+    padding: 11px 14px; border-radius: 12px;
+    color: rgba(255,255,255,0.7); text-decoration: none;
+    font-size: 0.87rem; font-weight: 600; transition: all 0.2s;
+    cursor: pointer;
+  }
+  .sidebar-nav a:hover, .sidebar-nav a.active { background: rgba(255,255,255,0.12); color: #fff; }
+  .sidebar-nav a i { width: 20px; text-align: center; }
+  .sidebar-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 1.5px; color: rgba(255,255,255,0.3); padding: 12px 14px 4px; text-transform: uppercase; }
+  .sidebar-footer { padding: 16px 12px; border-top: 1px solid rgba(255,255,255,0.1); }
+  .btn-logout {
+    display: flex; align-items: center; gap: 10px; width: 100%;
+    padding: 11px 14px; border-radius: 12px;
+    background: rgba(198,40,40,0.2); border: 1px solid rgba(198,40,40,0.3);
+    color: #ff8a80; font-size: 0.87rem; font-weight: 700;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .btn-logout:hover { background: rgba(198,40,40,0.35); }
+
+  /* MAIN */
+  .main { margin-left: 240px; flex: 1; min-height: 100vh; }
+
+  /* TOPBAR */
+  .topbar {
+    background: var(--card); border-bottom: 1px solid rgba(0,0,0,0.06);
+    padding: 0 28px; height: 64px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 50;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+  }
+  .topbar-title h2 { font-size: 1.1rem; font-weight: 800; color: var(--dark); }
+  .topbar-title p { font-size: 0.78rem; color: var(--muted); }
+  .topbar-right { display: flex; align-items: center; gap: 12px; }
+  .topbar-badge {
+    background: rgba(27,94,32,0.1); color: var(--green);
+    padding: 6px 14px; border-radius: 20px;
+    font-size: 0.78rem; font-weight: 700;
+  }
+  .hamburger-btn { display: none; background: none; border: none; cursor: pointer; padding: 8px; }
+  .hamburger-btn span { display: block; width: 22px; height: 2px; background: var(--dark); margin: 4px 0; border-radius: 2px; transition: all 0.3s; }
+
+  /* CONTENT */
+  .content { padding: 28px; }
+
+  /* STATS */
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 28px; }
+  .stat-card {
+    background: var(--card); border-radius: var(--radius); padding: 20px;
+    display: flex; align-items: center; gap: 14px;
+    border: 1px solid rgba(0,0,0,0.06);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    transition: all 0.3s; animation: fadeUp 0.5s ease both;
+  }
+  .stat-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(27,94,32,0.1); }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+  .stat-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
+  .stat-icon.green { background: rgba(27,94,32,0.1); color: var(--green); }
+  .stat-icon.gold { background: rgba(201,150,12,0.1); color: var(--gold); }
+  .stat-icon.blue { background: rgba(21,101,192,0.1); color: var(--blue); }
+  .stat-icon.red { background: rgba(198,40,40,0.1); color: var(--red); }
+  .stat-info h3 { font-size: 1.6rem; font-weight: 800; color: var(--dark); line-height: 1; }
+  .stat-info p { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+
+  /* SECTION CARDS */
+  .section-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+  .admin-card {
+    background: var(--card); border-radius: var(--radius);
+    border: 1px solid rgba(0,0,0,0.06);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    animation: fadeUp 0.6s ease both;
+    overflow: hidden;
+  }
+  .admin-card-header {
+    padding: 18px 22px; border-bottom: 1px solid rgba(0,0,0,0.06);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .admin-card-header h3 { font-size: 0.95rem; font-weight: 800; color: var(--dark); display: flex; align-items: center; gap: 8px; }
+  .admin-card-header h3 i { color: var(--green); }
+  .admin-card-body { padding: 22px; }
+
+  /* FORM */
+  .form-group { margin-bottom: 16px; }
+  .form-group label { display: block; font-size: 0.8rem; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+  .form-group input, .form-group textarea, .form-group select {
+    width: 100%; padding: 10px 14px; border-radius: 10px;
+    border: 1.5px solid rgba(0,0,0,0.1); background: var(--bg);
+    font-family: inherit; font-size: 0.88rem; color: var(--text);
+    transition: border-color 0.2s; outline: none;
+  }
+  .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--green); background: #fff; }
+  .form-group textarea { resize: vertical; min-height: 80px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+  .btn { padding: 10px 20px; border-radius: 10px; font-family: inherit; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.2s; border: none; display: inline-flex; align-items: center; gap: 8px; }
+  .btn-green { background: var(--green); color: #fff; }
+  .btn-green:hover { background: var(--green-mid); transform: translateY(-2px); }
+  .btn-gold { background: var(--gold); color: #fff; }
+  .btn-gold:hover { background: #b8860b; transform: translateY(-2px); }
+  .btn-red { background: var(--red); color: #fff; }
+  .btn-red:hover { background: #b71c1c; transform: translateY(-2px); }
+  .btn-ghost { background: transparent; color: var(--muted); border: 1.5px solid rgba(0,0,0,0.1); }
+  .btn-ghost:hover { border-color: var(--green); color: var(--green); }
+  .btn-sm { padding: 6px 12px; font-size: 0.78rem; border-radius: 8px; }
+  .btn-full { width: 100%; justify-content: center; }
+
+  /* LIST */
+  .berita-list { display: flex; flex-direction: column; gap: 10px; max-height: 400px; overflow-y: auto; }
+  .berita-list-item {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--bg); border-radius: 12px; padding: 12px 14px;
+    border: 1px solid rgba(0,0,0,0.05); transition: all 0.2s;
+    animation: fadeUp 0.4s ease both;
+  }
+  .berita-list-item:hover { border-color: var(--green-light); }
+  .berita-thumb { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; flex-shrink: 0; background: #e0e0e0; }
+  .berita-list-info { flex: 1; min-width: 0; }
+  .berita-list-info h4 { font-size: 0.85rem; font-weight: 700; color: var(--dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .berita-list-info p { font-size: 0.75rem; color: var(--muted); }
+  .berita-actions { display: flex; gap: 6px; }
+
+  /* GALERI LIST */
+  .galeri-admin-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px,1fr)); gap: 10px; max-height: 300px; overflow-y: auto; }
+  .galeri-admin-item { position: relative; border-radius: 10px; overflow: hidden; aspect-ratio: 1; cursor: pointer; }
+  .galeri-admin-item img { width: 100%; height: 100%; object-fit: cover; }
+  .galeri-admin-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; gap: 8px; }
+  .galeri-admin-item:hover .galeri-admin-overlay { display: flex; }
+
+  /* UPLOAD AREA */
+  .upload-area {
+    border: 2px dashed rgba(27,94,32,0.3); border-radius: 12px;
+    padding: 24px; text-align: center; cursor: pointer;
+    transition: all 0.2s; background: rgba(27,94,32,0.02);
+  }
+  .upload-area:hover { border-color: var(--green); background: rgba(27,94,32,0.05); }
+  .upload-area i { font-size: 2rem; color: var(--green); opacity: 0.5; margin-bottom: 8px; display: block; }
+  .upload-area p { font-size: 0.82rem; color: var(--muted); }
+  .upload-area input { display: none; }
+
+  /* TOAST */
+  .toast-wrap { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+  .toast {
+    background: var(--dark); color: #fff; padding: 12px 18px; border-radius: 12px;
+    font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 10px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    animation: slideIn 0.3s ease; min-width: 240px;
+  }
+  .toast.success { background: var(--green); }
+  .toast.error { background: var(--red); }
+  @keyframes slideIn { from{opacity:0;transform:translateX(40px)} to{opacity:1;transform:translateX(0)} }
+
+  /* BADGE */
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 700; }
+  .badge-green { background: rgba(27,94,32,0.1); color: var(--green); }
+  .badge-blue { background: rgba(21,101,192,0.1); color: var(--blue); }
+  .badge-gold { background: rgba(201,150,12,0.1); color: var(--gold); }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .section-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 768px) {
+    .sidebar { transform: translateX(-100%); }
+    .sidebar.open { transform: translateX(0); }
+    .main { margin-left: 0; }
+    .hamburger-btn { display: block; }
+    .content { padding: 16px; }
+    .form-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div id="toastWrap" class="toast-wrap"></div>
+
+<div class="admin-layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <img src="img/logo-darulma'arif.png" alt="Logo">
+      <div>
+        <strong>Admin Panel</strong>
+        <span>eL-BAS Official</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-label">Menu</div>
+      <a class="active" onclick="showTab('berita')"><i class="fas fa-newspaper"></i> Kelola Berita</a>
+      <a onclick="showTab('galeri')"><i class="fas fa-images"></i> Kelola Galeri</a>
+      <div class="sidebar-label" style="margin-top:8px">Navigasi</div>
+      <a href="index.html" target="_blank"><i class="fas fa-external-link-alt"></i> Lihat Website</a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:14px">
+        <button class="hamburger-btn" onclick="toggleSidebar()">
+          <span></span><span></span><span></span>
+        </button>
+        <div class="topbar-title">
+          <h2 id="pageTitle">Kelola Berita</h2>
+          <p>Pondok Pesantren Darul Ma'arif</p>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <span class="topbar-badge"><i class="fas fa-circle" style="font-size:.5rem;vertical-align:middle;color:#4caf50"></i> Online</span>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+      <!-- STATS -->
+      <div class="stats-grid">
+        <div class="stat-card" style="animation-delay:.05s">
+          <div class="stat-icon green"><i class="fas fa-newspaper"></i></div>
+          <div class="stat-info"><h3 id="totalBerita">0</h3><p>Total Berita</p></div>
+        </div>
+        <div class="stat-card" style="animation-delay:.10s">
+          <div class="stat-icon gold"><i class="fas fa-images"></i></div>
+          <div class="stat-info"><h3 id="totalGaleri">0</h3><p>Foto Galeri</p></div>
+        </div>
+        <div class="stat-card" style="animation-delay:.15s">
+          <div class="stat-icon blue"><i class="fas fa-calendar"></i></div>
+          <div class="stat-info"><h3 id="bulanIni">0</h3><p>Berita Bulan Ini</p></div>
+        </div>
+        <div class="stat-card" style="animation-delay:.20s">
+          <div class="stat-icon red"><i class="fas fa-eye"></i></div>
+          <div class="stat-info"><h3>—</h3><p>Pengunjung</p></div>
+        </div>
+      </div>
+
+      <!-- TAB BERITA -->
+      <div id="tab-berita">
+        <div class="section-grid">
+          <!-- FORM BERITA -->
+          <div class="admin-card" style="animation-delay:.25s">
+            <div class="admin-card-header">
+              <h3><i class="fas fa-plus"></i> <span id="formTitle">Tambah Berita</span></h3>
+              <button class="btn btn-ghost btn-sm" id="btnBatal" style="display:none" onclick="batalEdit()">Batal</button>
+            </div>
+            <div class="admin-card-body">
+              <input type="hidden" id="editId">
+              <div class="form-group">
+                <label>Judul Berita *</label>
+                <input type="text" id="judul" placeholder="Masukkan judul berita" required>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Tanggal *</label>
+                  <input type="text" id="tanggal" placeholder="12 Februari 2026" required>
+                </div>
+                <div class="form-group">
+                  <label>Kategori *</label>
+                  <select id="kategori">
+                    <option>Kegiatan</option>
+                    <option>Akademik</option>
+                    <option>Pesantren</option>
+                    <option>Prestasi</option>
+                    <option>Pengumuman</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Foto Berita</label>
+                <div class="upload-area" onclick="document.getElementById('gambarFile').click()">
+                  <i class="fas fa-cloud-upload-alt"></i>
+                  <p>Klik untuk pilih gambar</p>
+                  <input type="file" id="gambarFile" accept="image/*" onchange="previewImg(this)">
+                </div>
+                <img id="imgPreview" style="width:100%;border-radius:10px;margin-top:10px;display:none">
+              </div>
+              <div class="form-group">
+                <label>Ringkasan *</label>
+                <textarea id="ringkas" placeholder="Ringkasan singkat berita..." rows="2" required></textarea>
+              </div>
+              <div class="form-group">
+                <label>Isi Lengkap *</label>
+                <textarea id="isi" placeholder="Isi lengkap berita..." rows="4" required></textarea>
+              </div>
+              <div style="display:flex;gap:10px">
+                <button class="btn btn-green btn-full" onclick="simpanBerita()">
+                  <i class="fas fa-save"></i> Simpan Berita
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- LIST BERITA -->
+          <div class="admin-card" style="animation-delay:.30s">
+            <div class="admin-card-header">
+              <h3><i class="fas fa-list"></i> Daftar Berita</h3>
+              <span class="badge badge-green" id="countBerita">0 berita</span>
+            </div>
+            <div class="admin-card-body">
+              <div class="berita-list" id="adminList"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB GALERI -->
+      <div id="tab-galeri" style="display:none">
+        <div class="section-grid">
+          <div class="admin-card" style="animation-delay:.25s">
+            <div class="admin-card-header">
+              <h3><i class="fas fa-plus"></i> Tambah Foto Galeri</h3>
+            </div>
+            <div class="admin-card-body">
+              <div class="form-group">
+                <label>Foto *</label>
+                <div class="upload-area" onclick="document.getElementById('galeriFoto').click()">
+                  <i class="fas fa-image"></i>
+                  <p>Klik untuk pilih foto</p>
+                  <input type="file" id="galeriFoto" accept="image/*" onchange="previewGaleri(this)" required>
+                </div>
+                <img id="galeriPreview" style="width:100%;border-radius:10px;margin-top:10px;display:none;max-height:200px;object-fit:cover">
+              </div>
+              <div class="form-group">
+                <label>Caption</label>
+                <input type="text" id="galeriCaption" placeholder="Deskripsi foto...">
+              </div>
+              <button class="btn btn-gold btn-full" onclick="tambahGaleri()">
+                <i class="fas fa-plus"></i> Tambah ke Galeri
+              </button>
+            </div>
+          </div>
+          <div class="admin-card" style="animation-delay:.30s">
+            <div class="admin-card-header">
+              <h3><i class="fas fa-th"></i> Foto Galeri</h3>
+              <span class="badge badge-gold" id="countGaleri">0 foto</span>
+            </div>
+            <div class="admin-card-body">
+              <div class="galeri-admin-grid" id="galeriAdminList"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>
