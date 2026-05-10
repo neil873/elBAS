@@ -8,7 +8,7 @@
 
 const SUPABASE_URL = 'https://jzwuzbxbcgcfpdfogwrp.supabase.co';
 // Ganti dengan anon key dari: Supabase Dashboard → Project Settings → API → anon public
-const SUPABASE_ANON_KEY = 'sb_publishable_xqJszcSrSzwVe60ou32qdw_pucnPlx1';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6d3V6YnhiY2djZnBkZm9nd3JwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU5NDg0NjEsImV4cCI6MjA5MTUyNDQ2MX0.82gTIYchTmLwtUerNDIkUOUoZY35xttSH5rBLAmjolY';
 
 let sb = null;
 let currentUser = null;
