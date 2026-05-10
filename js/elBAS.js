@@ -64,7 +64,6 @@ function showLoader(el, msg = 'Memuat data...') {
 
 // =============================================
 // HALAMAN: INDEX.HTML
-// Tampil 3 berita terbaru + 6 galeri terbaru
 // =============================================
 async function initIndex() {
   await Promise.all([
@@ -81,7 +80,7 @@ async function loadBeritaIndex() {
   try {
     let data = CACHE.get('berita_all');
     if (!data) {
-      data = await SUPA.get('berita', 'order=tanggal.desc&limit=3');
+      data = await SUPA.get('berita', 'order=created_at.desc&limit=3');
       CACHE.set('berita_all', data);
     } else {
       data = data.slice(0, 3);
@@ -161,7 +160,7 @@ async function initBerita() {
   try {
     let data = CACHE.get('berita_all');
     if (!data) {
-      data = await SUPA.get('berita', 'order=tanggal.desc');
+      data = await SUPA.get('berita', 'order=created_at.desc');
       CACHE.set('berita_all', data);
     }
     window.semuaBerita = data || [];
@@ -248,7 +247,7 @@ async function initBeritaDetail() {
   try {
     let semua = CACHE.get('berita_all');
     if (!semua) {
-      semua = await SUPA.get('berita', 'order=tanggal.desc');
+      semua = await SUPA.get('berita', 'order=created_at.desc');
       CACHE.set('berita_all', semua);
     }
     const data = (semua || []).find(b => String(b.id) === String(id));
@@ -364,7 +363,7 @@ async function initGaleri() {
 
     if (!window.galeriData.length) {
       grid.style.display = 'none';
-      if (empty) { empty.style.display = 'flex'; empty.style.display = 'block'; }
+      if (empty) { empty.style.display = 'block'; }
       return;
     }
 
@@ -380,7 +379,6 @@ function renderGaleriGrid() {
   if (!grid || !window.galeriData) return;
 
   grid.innerHTML = window.galeriData.map((g, i) => {
-    // Support kolom: foto | url | image_url | gambar
     const src = g.foto || g.url || g.image_url || g.gambar || '';
     const cap = g.caption || g.judul || g.title || '';
     return `
@@ -400,7 +398,6 @@ function renderGaleriGrid() {
   grid.querySelectorAll('.g-item').forEach(el => obs.observe(el));
 }
 
-// setView — toggle masonry / uniform grid
 function setView(mode) {
   const grid = document.getElementById('galeriGrid');
   if (!grid) return;
@@ -452,7 +449,7 @@ function prevPhoto(e) {
 
 function nextPhoto(e) {
   e && e.stopPropagation();
-  const len = (window.Data || []).length;
+  const len = (window.galeriData || []).length; // ✅ FIX: was window.Data
   _lbIdx = (_lbIdx + 1) % len;
   _showLbPhoto();
 }
@@ -461,7 +458,6 @@ function handleLbClick(e) {
   if (e.target === document.getElementById('lightbox')) closeLb();
 }
 
-// Keyboard nav lightbox
 document.addEventListener('keydown', e => {
   const lb = document.getElementById('lightbox');
   if (!lb || !lb.classList.contains('active')) return;
@@ -489,7 +485,6 @@ function escAttr(str) {
 // FUNGSI KHUSUS UNTUK INDEX.HTML
 // =============================================
 
-// NAVBAR SCROLL
 function initNavbarScroll() {
   window.addEventListener('scroll', () => {
     const navbar = document.getElementById('navbar');
@@ -497,7 +492,6 @@ function initNavbarScroll() {
   });
 }
 
-// MOBILE MENU
 function initMobileMenu() {
   window.toggleMenu = function() {
     document.getElementById('navMobile')?.classList.toggle('open');
@@ -509,7 +503,6 @@ function initMobileMenu() {
   };
 }
 
-// COUNTER ANIMATION (untuk angka di hero)
 function initCounterAnimation() {
   function animateCount(el, target, suffix) {
     let v = 0, dur = 1800, step = target / (dur / 16);
@@ -531,7 +524,6 @@ function initCounterAnimation() {
   document.querySelectorAll('[data-target]').forEach(el => cObs.observe(el));
 }
 
-// ACTIVE NAV HIGHLIGHT
 function initActiveNav() {
   const navSections = document.querySelectorAll('section[id]');
   window.addEventListener('scroll', () => {
@@ -543,47 +535,36 @@ function initActiveNav() {
   });
 }
 
-// LIGHTBOX UNTUK INDEX (overwrite)
 function initIndexLightbox() {
   window.openLightbox = function(src) {
     const lb = document.getElementById('lightbox');
     const img = document.getElementById('lightboxImg');
-    if (img && lb) { img.src = src; lb.classList.add('active'); document.body.style.overflow = 'hidden'; }
+    if (img && lb) { img.src = src; lb.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
   };
-
   window.closeLightbox = function() {
-    const lb = document.getElementById('lightbox');
-    if (lb) { lb.classList.remove('active'); document.body.style.overflow = ''; }
+   const lb = document.getElementById('lightbox');
+    if (lb) { lb.style.display = 'none'; document.body.style.overflow = ''; }
   };
-
-  document.getElementById('lightbox')?.addEventListener('click', e => { 
-    if (e.target === e.currentTarget) window.closeLightbox(); 
-  });
 }
 
-// INIT SEMUA FUNGSI INDEX
-function initIndexSpecific() {
-  initNavbarScroll();
-  initMobileMenu();
-  initCounterAnimation();
-  initActiveNav();
-  initIndexLightbox();
-}
-
-// Panggil initIndexSpecific hanya jika di halaman index
-if (window.location.pathname.split('/').pop() === 'index.html' || window.location.pathname === '/' || window.location.pathname === '') {
-  document.addEventListener('DOMContentLoaded', () => {
-    initIndexSpecific();
-  });
-}
 // =============================================
-// AUTO INIT — detect halaman aktif
+// AUTO INIT — deteksi halaman otomatis
 // =============================================
 document.addEventListener('DOMContentLoaded', () => {
-  const path = location.pathname.split('/').pop() || 'index.html';
+  const path = location.pathname;
 
-  if (path === '' || path === 'index.html') initIndex();
-  else if (path === 'berita.html') initBerita();
-  else if (path === 'berita-detail.html') initBeritaDetail();
-  else if (path === 'galeri.html') initGaleri();
+  if (path.includes('index') || path === '/' || path.endsWith('/')) {
+    initNavbarScroll();
+    initMobileMenu();
+    initCounterAnimation();
+    initActiveNav();
+    initIndexLightbox();
+    initIndex();
+  } else if (path.includes('berita-detail')) {
+    initBeritaDetail();
+  } else if (path.includes('berita')) {
+    initBerita();
+  } else if (path.includes('galeri')) {
+    initGaleri();
+  }
 });
