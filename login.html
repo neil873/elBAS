@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="X-Frame-Options" content="DENY">
+<meta name="referrer" content="no-referrer">
+<title>Admin Login — eL-BAS</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0a1a0b;
+  overflow: hidden;
+}
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 30%, rgba(27,94,32,0.35) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 80% at 80% 70%, rgba(201,150,12,0.12) 0%, transparent 60%);
+  pointer-events: none;
+}
+.bg-grid {
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(27,94,32,0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(27,94,32,0.06) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+}
+.login-wrap {
+  width: 100%; max-width: 400px;
+  padding: 20px; position: relative; z-index: 1;
+}
+.login-card {
+  background: rgba(15, 30, 16, 0.85);
+  border: 1px solid rgba(27,94,32,0.35);
+  border-radius: 24px; padding: 40px 36px;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.04), 0 32px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.07);
+  animation: slideUp .5s cubic-bezier(.16,1,.3,1) both;
+}
+@keyframes slideUp { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
+@keyframes shake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-8px)} 40%,80%{transform:translateX(8px)} }
+
+.login-logo { text-align: center; margin-bottom: 32px; }
+.login-logo-icon {
+  width: 64px; height: 64px;
+  background: linear-gradient(135deg, #1B5E20, #2E7D32);
+  border-radius: 18px; display: inline-flex;
+  align-items: center; justify-content: center;
+  font-size: 1.6rem; margin-bottom: 14px;
+  box-shadow: 0 8px 24px rgba(27,94,32,0.4);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.login-logo h1 { font-size: 1.4rem; font-weight: 800; color: #fff; }
+.login-logo p { font-size: .78rem; color: rgba(255,255,255,0.4); margin-top: 4px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; }
+
+.field { margin-bottom: 18px; }
+.field label { display: block; font-size: .75rem; font-weight: 700; color: rgba(255,255,255,0.5); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+.input-wrap { position: relative; }
+.input-wrap i.ico { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.3); font-size: .85rem; pointer-events: none; }
+.input-wrap input {
+  width: 100%; background: rgba(255,255,255,0.05);
+  border: 1.5px solid rgba(255,255,255,0.1); border-radius: 12px;
+  color: #fff; font-family: inherit; font-size: .9rem;
+  padding: 13px 44px 13px 42px; outline: none;
+  transition: all .25s; caret-color: #43A047;
+  /* Prevent browser autocomplete styling leak */
+  -webkit-text-fill-color: #fff;
+}
+.input-wrap input:-webkit-autofill,
+.input-wrap input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px rgba(15,30,16,0.9) inset !important;
+  -webkit-text-fill-color: #fff !important;
+}
+.input-wrap input::placeholder { color: rgba(255,255,255,0.2); }
+.input-wrap input:focus { border-color: rgba(67,160,71,0.7); background: rgba(67,160,71,0.06); box-shadow: 0 0 0 3px rgba(67,160,71,0.15); }
+.input-wrap input.err { border-color: rgba(229,57,53,0.7); background: rgba(229,57,53,0.06); box-shadow: 0 0 0 3px rgba(229,57,53,0.1); }
+.toggle-pw { position: absolute; right: 13px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.25); cursor: pointer; font-size: .85rem; border: none; background: none; padding: 4px; transition: color .2s; }
+.toggle-pw:hover { color: rgba(255,255,255,0.6); }
+
+/* CAPTCHA */
+.captcha-label { font-size: .75rem; font-weight: 700; color: rgba(255,255,255,0.5); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; display: block; }
+.captcha-row { display: grid; grid-template-columns: auto 36px 1fr; align-items: center; gap: 8px; margin-bottom: 22px; }
+.captcha-box {
+  background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.12);
+  border-radius: 10px; padding: 10px 14px;
+  font-size: .9rem; font-weight: 700; color: #F5C842;
+  letter-spacing: 4px; font-family: 'Courier New', monospace;
+  user-select: none; text-align: center; position: relative; overflow: hidden; white-space: nowrap;
+}
+.captcha-box::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(45deg,transparent,transparent 4px,rgba(255,255,255,0.02) 4px,rgba(255,255,255,0.02) 5px); }
+.captcha-reload { background: none; border: none; color: rgba(255,255,255,0.3); cursor: pointer; font-size: .85rem; padding: 6px; border-radius: 8px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; transition: all .2s; }
+.captcha-reload:hover { color: #fff; background: rgba(255,255,255,0.07); }
+.captcha-input { min-width: 0; width: 100%; background: rgba(255,255,255,0.05); border: 1.5px solid rgba(255,255,255,0.1); border-radius: 10px; color: #fff; font-family: inherit; font-size: .88rem; padding: 11px 12px; outline: none; transition: all .25s; }
+.captcha-input::placeholder { color: rgba(255,255,255,0.2); font-size: .78rem; }
+.captcha-input:focus { border-color: rgba(67,160,71,0.7); background: rgba(67,160,71,0.06); box-shadow: 0 0 0 3px rgba(67,160,71,0.15); }
+.captcha-input.err { border-color: rgba(229,57,53,0.7); }
+
+/* LOCKOUT */
+.lockout-bar { background: rgba(229,57,53,0.08); border: 1px solid rgba(229,57,53,0.25); border-radius: 10px; padding: 14px 16px; margin-bottom: 20px; display: none; }
+.lockout-bar p { font-size: .8rem; color: #ef9a9a; font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 7px; }
+.lockout-progress { height: 4px; background: rgba(229,57,53,0.2); border-radius: 4px; overflow: hidden; }
+.lockout-fill { height: 100%; background: #e53935; border-radius: 4px; transition: width .5s linear; }
+
+/* ALERT */
+.alert { border-radius: 10px; padding: 11px 14px; font-size: .82rem; font-weight: 600; display: flex; align-items: center; gap: 9px; margin-bottom: 20px; animation: fadeIn .3s ease; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+.alert-error { background: rgba(229,57,53,0.12); border: 1px solid rgba(229,57,53,0.3); color: #ef9a9a; }
+.alert-success { background: rgba(67,160,71,0.12); border: 1px solid rgba(67,160,71,0.3); color: #a5d6a7; }
+.alert-warn { background: rgba(255,193,7,0.1); border: 1px solid rgba(255,193,7,0.25); color: #ffe082; }
+
+/* ATTEMPTS */
+.attempts-hint { text-align: center; font-size: .72rem; color: rgba(255,255,255,0.25); margin-top: 16px; font-weight: 500; }
+.attempts-hint span { color: #ef9a9a; font-weight: 700; }
+
+/* BTN */
+.btn-login {
+  width: 100%; padding: 14px;
+  background: linear-gradient(135deg, #1B5E20, #2E7D32);
+  color: #fff; border: none; border-radius: 12px;
+  font-family: inherit; font-size: .92rem; font-weight: 700;
+  cursor: pointer; letter-spacing: .5px; transition: all .25s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  box-shadow: 0 4px 20px rgba(27,94,32,0.35); position: relative; overflow: hidden;
+}
+.btn-login::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, #2E7D32, #43A047); opacity: 0; transition: opacity .25s; }
+.btn-login:hover::before { opacity: 1; }
+.btn-login:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(27,94,32,0.4); }
+.btn-login:active { transform: translateY(0); }
+.btn-login:disabled { opacity: .5; cursor: not-allowed; transform: none !important; }
+.btn-login span { position: relative; z-index: 1; }
+
+.login-footer { text-align: center; margin-top: 24px; font-size: .72rem; color: rgba(255,255,255,0.2); }
+
+/* Security indicator */
+.security-badges { display: flex; justify-content: center; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+.sec-badge { display: inline-flex; align-items: center; gap: 5px; font-size: .65rem; color: rgba(255,255,255,0.2); font-weight: 600; letter-spacing: .5px; }
+.sec-badge i { color: rgba(67,160,71,0.5); font-size: .65rem; }
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+
+<div class="login-wrap">
+  <div class="login-card" id="loginCard">
+    <div class="login-logo">
+      <div class="login-logo-icon">🕌</div>
+      <h1>eL-BAS Admin</h1>
+      <p>Panel Kontrol</p>
+    </div>
+
+    <div id="alertBox"></div>
+
+    <div class="lockout-bar" id="lockoutBar">
+      <p><i class="fas fa-lock"></i> <span id="lockoutMsg">Terlalu banyak percobaan.</span></p>
+      <div class="lockout-progress"><div class="lockout-fill" id="lockoutFill" style="width:100%"></div></div>
+    </div>
+
+    <div class="field">
+      <label>Username</label>
+      <div class="input-wrap">
+        <input type="text" id="username" placeholder="Masukkan username"
+               autocomplete="username" autocorrect="off" autocapitalize="none" spellcheck="false"
+               maxlength="64" oninput="onInput()" onkeydown="onEnter(event)">
+        <i class="fas fa-user ico"></i>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Password</label>
+      <div class="input-wrap">
+        <input type="password" id="password" placeholder="Masukkan password"
+               autocomplete="current-password" maxlength="128"
+               oninput="onInput()" onkeydown="onEnter(event)">
+        <i class="fas fa-lock ico"></i>
+        <button type="button" class="toggle-pw" onclick="togglePw()" tabindex="-1" aria-label="Tampilkan password">
+          <i class="fas fa-eye" id="eyeIcon"></i>
+        </button>
+      </div>
+    </div>
+
+    <span class="captcha-label">Verifikasi</span>
+    <div class="captcha-row">
+      <div class="captcha-box" id="captchaText" aria-label="Kode captcha"></div>
+      <button type="button" class="captcha-reload" onclick="genCaptcha()" title="Ganti kode" aria-label="Refresh captcha">
+        <i class="fas fa-sync-alt"></i>
+      </button>
+      <input type="text" class="captcha-input" id="captchaInput"
+             placeholder="Ketik kode di atas"
+             autocomplete="off" autocorrect="off" maxlength="6"
+             oninput="onInput()" onkeydown="onEnter(event)" aria-label="Input captcha">
+    </div>
+
+    <button class="btn-login" id="btnLogin" onclick="doLogin()">
+      <span id="btnText"><i class="fas fa-sign-in-alt"></i> &nbsp;Masuk ke Panel Admin</span>
+    </button>
+
+    <div class="attempts-hint" id="attemptsHint" style="display:none">
+      Percobaan tersisa: <span id="attemptsLeft">5</span>
+    </div>
+  </div>
+
+  <div class="security-badges">
+    <span class="sec-badge"><i class="fas fa-shield-alt"></i> Anti Brute Force</span>
+    <span class="sec-badge"><i class="fas fa-robot"></i> Anti Bot</span>
+    <span class="sec-badge"><i class="fas fa-database"></i> Server Auth</span>
+  </div>
+
+  <div class="login-footer">
+    © 2026 eL-BAS Official · Pondok Pesantren Darul Ma'arif Ciamis
+  </div>
+</div>
+
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ================================================================
+// KEAMANAN: TIDAK ADA HARDCODED CREDENTIALS DI SINI
+// Semua auth divalidasi server-side via Supabase Auth
+// ================================================================
+
+const SUPABASE_URL = 'https://jzwuzbxbcgcfpdfogwrp.supabase.co';
+// ANON KEY = aman di client, hanya bisa read data public
+// Ganti dengan key dari: Supabase Dashboard → Project Settings → API → anon public
+const SUPABASE_ANON_KEY = 'GANTI_DENGAN_ANON_KEY_DARI_SUPABASE_DASHBOARD';
+
+let sb = null;
+(async () => {
+  sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: {
+      persistSession: true,
+      storageKey: '__elb_auth',
+      storage: sessionStorage, // session only, bukan localStorage
+      autoRefreshToken: true
+    }
+  });
+
+  // Kalau udah login, langsung redirect
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) {
+    window.location.replace('admin.html');
+    return;
+  }
+
+  genCaptcha();
+})();
+
+// ================================================================
+// RATE LIMITING — Client-side layer (server-side di Supabase)
+// ================================================================
+const RATE = {
+  key: '__elb_rl',
+  max: 5,
+  lockSec: 300,
+
+  _get() {
+    try { return JSON.parse(sessionStorage.getItem(this.key)) || { n: 0, until: 0 }; }
+    catch { return { n: 0, until: 0 }; }
+  },
+  _save(d) { try { sessionStorage.setItem(this.key, JSON.stringify(d)); } catch {} },
+
+  isLocked() { return this._get().until > Date.now(); },
+  remaining() { return Math.max(0, Math.ceil((this._get().until - Date.now()) / 1000)); },
+  attemptsLeft() { const d = this._get(); return Math.max(0, this.max - d.n); },
+
+  hit() {
+    const d = this._get();
+    d.n++;
+    if (d.n >= this.max) { d.until = Date.now() + this.lockSec * 1000; d.n = 0; }
+    this._save(d); return d;
+  },
+  reset() { this._save({ n: 0, until: 0 }); },
+  hasHits() { return this._get().n > 0; }
+};
+
+// ================================================================
+// TIMING ATTACK MITIGATION — Delay acak biar brute force susah
+// ================================================================
+function secureDelay() {
+  // Delay 400–900ms biar attacker susah ukur response time
+  const ms = 400 + Math.floor(Math.random() * 500);
+  return new Promise(r => setTimeout(r, ms));
+}
+
+// ================================================================
+// CAPTCHA
+// ================================================================
+const CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+let captchaAns = '';
+
+function genCaptcha() {
+  const arr = new Uint8Array(5);
+  crypto.getRandomValues(arr);
+  captchaAns = Array.from(arr).map(n => CHARS[n % CHARS.length]).join('');
+  const el = document.getElementById('captchaText');
+  if (el) el.textContent = captchaAns;
+  const inp = document.getElementById('captchaInput');
+  if (inp) { inp.value = ''; inp.classList.remove('err'); }
+}
+
+// ================================================================
+// INPUT SANITIZATION
+// ================================================================
+function sanitize(str) {
+  // Strip semua karakter berbahaya, hanya allow printable ASCII
+  return String(str).replace(/[^\x20-\x7E]/g, '').trim().slice(0, 128);
+}
+
+// ================================================================
+// UI HELPERS
+// ================================================================
+function showAlert(type, msg) {
+  // Escape HTML buat prevent XSS di alert message
+  const safe = String(msg).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const icons = { error: 'fa-circle-exclamation', warn: 'fa-triangle-exclamation', success: 'fa-circle-check' };
+  document.getElementById('alertBox').innerHTML = `
+    <div class="alert alert-${type}" role="alert">
+      <i class="fas ${icons[type]||'fa-circle-info'}"></i>
+      <span>${safe}</span>
+    </div>`;
+}
+function clearAlert() { document.getElementById('alertBox').innerHTML = ''; }
+
+function setLoading(v) {
+  const btn = document.getElementById('btnLogin');
+  const txt = document.getElementById('btnText');
+  ['username','password','captchaInput','btnLogin'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.disabled = v;
+  });
+  if (txt) txt.innerHTML = v
+    ? '<i class="fas fa-spinner fa-spin"></i> Memverifikasi...'
+    : '<i class="fas fa-sign-in-alt"></i> &nbsp;Masuk ke Panel Admin';
+}
+
+function togglePw() {
+  const inp = document.getElementById('password');
+  const ico = document.getElementById('eyeIcon');
+  if (!inp) return;
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  ico.className = inp.type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+}
+
+function onInput() { clearAlert(); }
+function onEnter(e) { if (e.key === 'Enter') doLogin(); }
+
+let lockTimer = null;
+function showLockout(totalSec) {
+  const bar = document.getElementById('lockoutBar');
+  const msg = document.getElementById('lockoutMsg');
+  const fill = document.getElementById('lockoutFill');
+  bar.style.display = 'block';
+  setLoading(true);
+
+  const tick = () => {
+    const rem = RATE.remaining();
+    if (rem <= 0) {
+      bar.style.display = 'none';
+      setLoading(false);
+      clearAlert();
+      if (fill) fill.style.width = '0%';
+      genCaptcha();
+      updateHint();
+      return;
+    }
+    const m = Math.floor(rem / 60), s = rem % 60;
+    if (msg) msg.textContent = `Terlalu banyak percobaan. Tunggu ${m > 0 ? m+'m ' : ''}${s}s`;
+    if (fill) fill.style.width = (rem / totalSec * 100) + '%';
+    lockTimer = setTimeout(tick, 1000);
+  };
+  tick();
+}
+
+function updateHint() {
+  const hint = document.getElementById('attemptsHint');
+  const left = document.getElementById('attemptsLeft');
+  if (RATE.hasHits() && RATE.attemptsLeft() < RATE.max) {
+    hint.style.display = 'block';
+    if (left) left.textContent = RATE.attemptsLeft();
+  } else {
+    hint.style.display = 'none';
+  }
+}
+
+// ================================================================
+// LOGIN UTAMA — Zero credentials di client
+// ================================================================
+async function doLogin() {
+  clearAlert();
+
+  // Cek lockout
+  if (RATE.isLocked()) { showLockout(RATE.remaining()); return; }
+
+  // Ambil & sanitize input
+  const username = sanitize(document.getElementById('username')?.value || '');
+  const password = sanitize(document.getElementById('password')?.value || '');
+  const captchaVal = sanitize(document.getElementById('captchaInput')?.value || '').toUpperCase();
+
+  // Validasi field kosong
+  if (!username || !password) {
+    showAlert('error', 'Username dan password wajib diisi.');
+    return;
+  }
+
+  // Validasi captcha
+  if (!captchaVal) {
+    document.getElementById('captchaInput')?.classList.add('err');
+    showAlert('error', 'Masukkan kode verifikasi.');
+    return;
+  }
+  if (captchaVal !== captchaAns) {
+    document.getElementById('captchaInput')?.classList.add('err');
+    genCaptcha();
+    RATE.hit(); updateHint();
+    if (RATE.isLocked()) { showLockout(RATE.lockSec); return; }
+    showAlert('error', `Kode verifikasi salah. (${RATE.attemptsLeft()} percobaan tersisa)`);
+    return;
+  }
+
+  setLoading(true);
+
+  // Timing mitigation
+  await secureDelay();
+
+  try {
+    // ✅ SUPABASE AUTH — Password TIDAK pernah dikirim ke client logic
+    // Validasi dilakukan 100% di server Supabase
+    // Username dikonversi ke email format untuk Supabase Auth
+    const emailFormat = `${username.toLowerCase()}@elbasadmin.local`;
+
+    const { data, error } = await sb.auth.signInWithPassword({
+      email: emailFormat,
+      password: password
+    });
+
+    if (error || !data.session) {
+      // Auth gagal
+      RATE.hit(); updateHint();
+      genCaptcha();
+      setLoading(false);
+
+      if (RATE.isLocked()) { showLockout(RATE.lockSec); return; }
+
+      // Pesan error GENERIC — jangan bocor info username vs password
+      showAlert('error', `Kredensial tidak valid. (${RATE.attemptsLeft()} percobaan tersisa)`);
+
+      // Shake animation
+      const card = document.getElementById('loginCard');
+      if (card) { card.style.animation = 'shake .4s ease'; setTimeout(() => card.style.animation = '', 400); }
+      return;
+    }
+
+    // ✅ LOGIN SUKSES
+    RATE.reset();
+
+    // Cek role dari user metadata
+    const role = data.user?.user_metadata?.role || 'admin';
+    const name = data.user?.user_metadata?.name || username;
+
+    // Simpan minimal info di session (BUKAN password)
+    sessionStorage.setItem('__elb_user', JSON.stringify({ username, role, name }));
+
+    const btnTxt = document.getElementById('btnText');
+    if (btnTxt) btnTxt.innerHTML = '<i class="fas fa-check"></i> Berhasil!';
+    showAlert('success', `Selamat datang, ${name.replace(/&/g,'&amp;')}! Mengalihkan...`);
+
+    setTimeout(() => window.location.replace('admin.html'), 800);
+
+  } catch (err) {
+    console.error('Auth error:', err);
+    setLoading(false);
+    genCaptcha();
+    showAlert('error', 'Terjadi kesalahan koneksi. Coba lagi.');
+  }
+}
+</script>
+</body>
+</html>
