@@ -8,7 +8,7 @@
 
 const SUPABASE_URL = 'https://jzwuzbxbcgcfpdfogwrp.supabase.co';
 // Ganti dengan anon key dari: Supabase Dashboard → Project Settings → API → anon public
-const SUPABASE_ANON_KEY = 'GANTI_DENGAN_ANON_KEY_DARI_SUPABASE_DASHBOARD';
+const SUPABASE_ANON_KEY = 'sb_publishable_xqJszcSrSzwVe60ou32qdw_pucnPlx1';
 
 let sb = null;
 let currentUser = null;
