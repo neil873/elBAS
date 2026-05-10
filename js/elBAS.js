@@ -10,7 +10,7 @@
 // =============================================
 const SUPA = {
   url: 'https://jzwuzbxbcgcfpdfogwrp.supabase.co',
-  key: 'sb_publishable_xqJszcSrSzwVe60ou32qdw_pucnPlx1',
+  key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6d3V6YnhiY2djZnBkZm9nd3JwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU5NDg0NjEsImV4cCI6MjA5MTUyNDQ2MX0.82gTIYchTmLwtUerNDIkUOUoZY35xttSH5rBLAmjolY',
   headers() {
     return {
       'apikey': this.key,
