@@ -437,7 +437,9 @@ async function doLogin() {
     // ✅ SUPABASE AUTH — Password TIDAK pernah dikirim ke client logic
     // Validasi dilakukan 100% di server Supabase
     // Username dikonversi ke email format untuk Supabase Auth
-    const emailFormat = `${username.toLowerCase()}@elbasadmin.local`;
+    const emailFormat = username.toLowerCase().includes('@') 
+  ? username.toLowerCase() 
+  : `${username.toLowerCase()}@elbasadmin.local`;
 
     const { data, error } = await sb.auth.signInWithPassword({
       email: emailFormat,
