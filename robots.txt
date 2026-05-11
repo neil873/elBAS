@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://el-bas-official.vercel.app/sitemap.xml
+Sitemap: https://el-bas.vercel.app/sitemap.xml
